@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS outbox_messages (
+    id UUID PRIMARY KEY,
+    type VARCHAR(255) NOT NULL,
+    payload JSONB NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS inbox_messages (
+    id UUID PRIMARY KEY,
+    type VARCHAR(255) NOT NULL,
+    payload JSONB NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS payments (
+    id VARCHAR(255) PRIMARY KEY,
+    order_id VARCHAR(255) NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id);
+CREATE INDEX IF NOT EXISTS idx_payments_status ON payments(status); 

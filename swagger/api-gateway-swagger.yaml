@@ -1,0 +1,588 @@
+openapi: 3.0.3
+info:
+  title: E-commerce API Gateway
+  description: |
+    API Gateway для микросервисной архитектуры e-commerce системы.
+    
+    ## Микросервисы:
+    - **Order Service** - управление заказами и продуктами
+    - **Payment Service** - управление пользователями и платежами
+    
+    ## Аутентификация:
+    В текущей версии аутентификация не требуется.
+    
+    ## Базовый URL:
+    `http://localhost:8080`
+  version: 1.0.0
+  contact:
+    name: E-commerce Team
+    email: support@ecommerce.com
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  # ========================================
+  # PRODUCTS (Order Service)
+  # ========================================
+  /api/products:
+    get:
+      summary: Получить список всех продуктов
+      description: Возвращает список всех доступных продуктов
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Список продуктов успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/products/{id}:
+    get:
+      summary: Получить продукт по ID
+      description: Возвращает информацию о конкретном продукте
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID продукта
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Продукт найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Продукт не найден
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ========================================
+  # ORDERS (Order Service)
+  # ========================================
+  /api/orders:
+    get:
+      summary: Получить список всех заказов
+      description: Возвращает список всех заказов в системе
+      tags:
+        - Orders
+      responses:
+        '200':
+          description: Список заказов успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Создать новый заказ
+      description: |
+        Создает новый заказ с указанными товарами.
+        
+        **Важно:** Заказ создается со статусом NEW, затем автоматически обрабатывается Payment Service через Kafka.
+        Статус обновляется на FINISHED (при успешной оплате) или CANCELLED (при недостатке средств).
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '201':
+          description: Заказ успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/orders/{order_id}:
+    get:
+      summary: Получить заказ по ID
+      description: Возвращает информацию о конкретном заказе
+      tags:
+        - Orders
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Заказ найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/orders/user/{user_id}:
+    get:
+      summary: Получить заказы пользователя
+      description: Возвращает все заказы конкретного пользователя
+      tags:
+        - Orders
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Заказы пользователя найдены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ========================================
+  # USERS (Payment Service)
+  # ========================================
+  /api/payment/users:
+    get:
+      summary: Получить список всех пользователей
+      description: Возвращает список всех пользователей в системе
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Список пользователей успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      summary: Создать нового пользователя
+      description: Создает нового пользователя в системе
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Пользователь успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/payment/users/{user_id}:
+    get:
+      summary: Получить пользователя по ID
+      description: Возвращает информацию о конкретном пользователе
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Пользователь найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ========================================
+  # ACCOUNTS (Payment Service)
+  # ========================================
+  /api/payment/accounts:
+    post:
+      summary: Создать счет для пользователя
+      description: |
+        Создает новый счет для пользователя.
+        
+        **user_id** должен быть передан в заголовке запроса `X-User-ID` (UUID пользователя).
+        Тело запроса не требуется (можно отправлять пустой объект `{}` или вообще без body).
+        
+        **Пример запроса:**
+        ```http
+        POST /api/payment/accounts HTTP/1.1
+        Host: localhost:8080
+        X-User-ID: 5e833693-2c14-40f9-95a1-a278148366aa
+        Content-Type: application/json
+        
+        {}
+        ```
+      tags:
+        - Accounts
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+            example: {}
+      responses:
+        '201':
+          description: Счет успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '409':
+          description: Счет уже существует
+        '400':
+          description: Не передан X-User-ID
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/payment/accounts/{user_id}:
+    get:
+      summary: Получить счет пользователя
+      description: Возвращает информацию о счете конкретного пользователя
+      tags:
+        - Accounts
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Счет найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/payment/accounts/{user_id}/deposit:
+    post:
+      summary: Пополнить счет
+      description: Пополняет счет пользователя на указанную сумму
+      tags:
+        - Accounts
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+      responses:
+        '200':
+          description: Счет успешно пополнен
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/payment/accounts/{user_id}/withdraw:
+    post:
+      summary: Снять средства со счета
+      description: Снимает указанную сумму со счета пользователя
+      tags:
+        - Accounts
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+      responses:
+        '200':
+          description: Средства успешно сняты
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  schemas:
+    # Product schemas
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор продукта
+        name:
+          type: string
+          description: Название продукта
+        price:
+          type: number
+          format: float
+          description: Цена продукта
+        description:
+          type: string
+          description: Описание продукта
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания продукта
+      required:
+        - id
+        - name
+        - price
+
+    # Order schemas
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор заказа
+        user_id:
+          type: string
+          format: uuid
+          description: ID пользователя
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          nullable: true
+          description: Список товаров в заказе
+        total_amount:
+          type: number
+          format: float
+          description: Общая сумма заказа
+        description:
+          type: string
+          description: Описание заказа
+        status:
+          type: string
+          enum: [NEW, FINISHED, CANCELLED]
+          description: Статус заказа
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания заказа
+        updated_at:
+          type: string
+          format: date-time
+          description: Дата последнего обновления заказа
+      required:
+        - id
+        - user_id
+        - total_amount
+        - status
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор позиции заказа
+        order_id:
+          type: string
+          format: uuid
+          description: ID заказа
+        product_id:
+          type: integer
+          description: ID продукта
+        quantity:
+          type: integer
+          description: Количество товара
+        price:
+          type: number
+          format: float
+          description: Цена за единицу товара
+      required:
+        - product_id
+        - quantity
+
+    CreateOrderRequest:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: ID пользователя
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemRequest'
+          description: Список товаров для заказа
+      required:
+        - user_id
+        - items
+
+    OrderItemRequest:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          description: ID продукта
+        quantity:
+          type: integer
+          description: Количество товара
+      required:
+        - product_id
+        - quantity
+
+    # User schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор пользователя
+        name:
+          type: string
+          description: Имя пользователя
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания пользователя
+      required:
+        - id
+        - name
+
+    CreateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Имя пользователя
+      required:
+        - name
+
+    # Account schemas
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Уникальный идентификатор счета
+        user_id:
+          type: string
+          format: uuid
+          description: ID пользователя
+        balance:
+          type: number
+          format: float
+          description: Баланс счета
+        created_at:
+          type: string
+          format: date-time
+          description: Дата создания счета
+        updated_at:
+          type: string
+          format: date-time
+          description: Дата последнего обновления счета
+      required:
+        - id
+        - user_id
+        - balance
+
+    DepositRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Сумма для пополнения
+      required:
+        - amount
+
+    WithdrawRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0.01
+          description: Сумма для снятия
+      required:
+        - amount
+
+  # Error responses
+  responses:
+    BadRequest:
+      description: Неверные данные запроса
+    NotFound:
+      description: Ресурс не найден
+    InternalServerError:
+      description: Внутренняя ошибка сервера
+
+tags:
+  - name: Products
+    description: Операции с продуктами
+  - name: Orders
+    description: Операции с заказами
+  - name: Users
+    description: Операции с пользователями
+  - name: Accounts
+    description: Операции со счетами и платежами 

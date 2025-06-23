@@ -1,0 +1,405 @@
+{
+  "info": {
+    "name": "E-commerce Microservices API",
+    "description": "Коллекция для тестирования API микросервисной архитектуры e-commerce системы",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "ecommerce-microservices-collection"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "test_user_id",
+      "value": "5e833693-2c14-40f9-95a1-a278148366aa",
+      "type": "string"
+    },
+    {
+      "key": "test_order_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Products",
+      "description": "API для работы с продуктами",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"]
+            },
+            "description": "Получить список всех продуктов"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products", "1"]
+            },
+            "description": "Получить продукт по ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "API для работы с пользователями",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "users"]
+            },
+            "description": "Получить список всех пользователей"
+          },
+          "response": []
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "users"]
+            },
+            "description": "Создать нового пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/users/{{test_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "users", "{{test_user_id}}"]
+            },
+            "description": "Получить пользователя по ID"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "description": "API для работы со счетами и платежами",
+      "item": [
+        {
+          "name": "Get Account",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}"]
+            },
+            "description": "Получить счет пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Account",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}"]
+            },
+            "description": "Создать счет для пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Deposit Money",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 100.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}/deposit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}", "deposit"]
+            },
+            "description": "Пополнить счет пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "Withdraw Money",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 50.25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}/withdraw",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}", "withdraw"]
+            },
+            "description": "Снять деньги со счета пользователя"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "description": "API для работы с заказами",
+      "item": [
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            },
+            "description": "Получить список всех заказов"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{test_user_id}}\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"product_id\": 2,\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            },
+            "description": "Создать новый заказ"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{test_order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{test_order_id}}"]
+            },
+            "description": "Получить заказ по ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Orders by User ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders/user/{{test_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "user", "{{test_user_id}}"]
+            },
+            "description": "Получить все заказы пользователя"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Complete Workflow",
+      "description": "Полный рабочий процесс создания заказа",
+      "item": [
+        {
+          "name": "1. Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Workflow User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "users"]
+            },
+            "description": "Шаг 1: Создать пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Create Account",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}"]
+            },
+            "description": "Шаг 2: Создать счет для пользователя"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Deposit Money",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 500.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}/deposit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}", "deposit"]
+            },
+            "description": "Шаг 3: Пополнить счет"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"{{test_user_id}}\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 3\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders"]
+            },
+            "description": "Шаг 4: Создать заказ"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Check Order Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{test_order_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "orders", "{{test_order_id}}"]
+            },
+            "description": "Шаг 5: Проверить статус заказа (должен быть FINISHED)"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Check Account Balance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payment/accounts/{{test_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payment", "accounts", "{{test_user_id}}"]
+            },
+            "description": "Шаг 6: Проверить баланс счета (должен уменьшиться)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-extract order ID from Create Order response",
+          "if (pm.info.requestName === 'Create Order') {",
+          "    pm.test('Extract order ID', function () {",
+          "        const response = pm.response.json();",
+          "        if (response.id) {",
+          "            pm.collectionVariables.set('test_order_id', response.id);",
+          "        }",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ]
+} 
