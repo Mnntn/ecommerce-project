@@ -62,14 +62,24 @@ func main() {
 
 	go func() {
 		for {
-			event, err := consumer.ReadOrderCreatedEvent(ctx)
-			if err != nil {
-				log.Printf("Error reading order created event: %v", err)
-				continue
-			}
+			select {
+			case <-ctx.Done():
+				log.Println("Kafka consumer stopped due to context cancellation")
+				return
+			default:
+				event, err := consumer.ReadOrderCreatedEvent(ctx)
+				if err != nil {
+					if ctx.Err() != nil {
+						log.Println("Kafka consumer stopped due to context cancellation")
+						return
+					}
+					log.Printf("Error reading order created event: %v", err)
+					continue
+				}
 
-			if err := orderProcessor.ProcessOrderCreated(ctx, event); err != nil {
-				log.Printf("Error processing order created: %v", err)
+				if err := orderProcessor.ProcessOrderCreated(ctx, event); err != nil {
+					log.Printf("Error processing order created: %v", err)
+				}
 			}
 		}
 	}()

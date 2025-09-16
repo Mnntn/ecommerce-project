@@ -73,14 +73,24 @@ func main() {
 
 	go func() {
 		for {
-			event, err := consumer.ReadOrderStatusUpdatedEvent(ctx)
-			if err != nil {
-				log.Printf("Error reading order status updated event: %v", err)
-				continue
-			}
+			select {
+			case <-ctx.Done():
+				log.Println("Kafka consumer stopped due to context cancellation")
+				return
+			default:
+				event, err := consumer.ReadOrderStatusUpdatedEvent(ctx)
+				if err != nil {
+					if ctx.Err() != nil {
+						log.Println("Kafka consumer stopped due to context cancellation")
+						return
+					}
+					log.Printf("Error reading order status updated event: %v", err)
+					continue
+				}
 
-			if err := statusProcessor.ProcessOrderStatusUpdated(ctx, event); err != nil {
-				log.Printf("Error processing order status update: %v", err)
+				if err := statusProcessor.ProcessOrderStatusUpdated(ctx, event); err != nil {
+					log.Printf("Error processing order status update: %v", err)
+				}
 			}
 		}
 	}()
