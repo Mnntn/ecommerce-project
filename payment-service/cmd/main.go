@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/mnntn/ecommerce-project/payment-service/internal/kafka"
+	"github.com/mnntn/ecommerce-project/payment-service/internal/migration"
 	"github.com/mnntn/ecommerce-project/payment-service/internal/repository/postgres"
 	"github.com/mnntn/ecommerce-project/payment-service/internal/service"
 	phttp "github.com/mnntn/ecommerce-project/payment-service/internal/transport/http"
@@ -31,6 +32,13 @@ func main() {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}
 	defer db.Close()
+
+	// Run migrations
+	migrationRunner := migration.NewMigrationRunner(db)
+	if err := migrationRunner.RunMigrations("/app/migrations"); err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
+	log.Println("Migrations completed successfully")
 
 	// Репозитории
 	userRepo := postgres.NewUserRepository(db)

@@ -14,6 +14,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/mnntn/ecommerce-project/order-service/internal/kafka"
+	"github.com/mnntn/ecommerce-project/order-service/internal/migration"
 	"github.com/mnntn/ecommerce-project/order-service/internal/outbox"
 	"github.com/mnntn/ecommerce-project/order-service/internal/repository/postgres"
 	"github.com/mnntn/ecommerce-project/order-service/internal/service"
@@ -31,6 +32,13 @@ func main() {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
 	defer db.Close()
+
+	// Run migrations
+	migrationRunner := migration.NewMigrationRunner(db.DB)
+	if err := migrationRunner.RunMigrations("/app/migrations"); err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
+	log.Println("Migrations completed successfully")
 
 	kafkaBrokers := os.Getenv("KAFKA_BROKERS")
 	if kafkaBrokers == "" {

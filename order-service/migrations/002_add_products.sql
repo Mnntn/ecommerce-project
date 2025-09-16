@@ -13,12 +13,11 @@ CREATE TABLE order_items (
     order_id VARCHAR(255) NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
     product_id INTEGER NOT NULL REFERENCES products(id),
     quantity INTEGER NOT NULL,
-    price DECIMAL(10, 2) NOT NULL -- Price at the time of order
+    price DECIMAL(10, 2) NOT NULL
 );
 
 ALTER TABLE orders
 ADD COLUMN total_amount DECIMAL(10, 2) NOT NULL DEFAULT 0.00;
-
 
 -- +migrate Down
 ALTER TABLE orders DROP COLUMN total_amount;
