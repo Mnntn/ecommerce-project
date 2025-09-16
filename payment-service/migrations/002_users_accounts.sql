@@ -1,3 +1,4 @@
+-- +migrate Up
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -12,4 +13,9 @@ CREATE TABLE IF NOT EXISTS accounts (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id); 
+CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
+
+-- +migrate Down
+DROP INDEX IF EXISTS idx_accounts_user_id;
+DROP TABLE IF EXISTS accounts;
+DROP TABLE IF EXISTS users; 
